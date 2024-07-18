@@ -1,0 +1,4 @@
+\.Raw[[:space:]]*\(.*\)
+\.Exec[[:space:]]*\(.*\)
+\.ExecContext[[:space:]]*\(.*\)
+\.Query(Row(Context)?)?[[:space:]]*\(
