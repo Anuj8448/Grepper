@@ -10,14 +10,12 @@ BINFILE=$(which grep)
 # Default values
 hidebanner=0
 context=1
-zimlines="#"
-vimlines="#"
 color='always'
 sigdb='default'
 separator='##############################################'
 excludefiles='--exclude=*.bz2 --exclude=*.gz --exclude=*.zip --exclude=*.rar --exclude=*.gif --exclude=*.jpg --exclude=*.png --exclude=*.map'
 
-#Save custom colors
+# Save custom colors
 OLD_COLORS=$GREP_COLORS
 OLD_COLOR=$GREP_COLOR
 
@@ -31,6 +29,7 @@ if [ $? -eq 2 ]; then
     echo "grepper requires a newer version of grep (>=2.5.3)"
     exit 2
 fi
+
 banner() {
     if [ $hidebanner == 0 ]; then
     echo \
@@ -65,15 +64,8 @@ OPTIONS
   -i case in-sensitive scan
   -c <num> number of lines of context to display, default is 2
 
-  -B supress banner
-  -L vim friendly lines
-  -b colour blind friendly template
-  -z supress colors
-  -Z high contrast colors
-  
-  -l lists databases available
-  -v prints version number
   -h prints this help screen
+  -v prints version number
 
 EOU
 }
@@ -102,11 +94,8 @@ listdb () {
     fi
 }
 
-while getopts "AbBhvilLzZd:c:x:" opt; do
+while getopts "Ac:hi:x:d:v" opt; do
     case $opt in
-        B)
-            hidebanner=1
-        ;;
         h)
             usage
             exit 1
@@ -118,17 +107,6 @@ while getopts "AbBhvilLzZd:c:x:" opt; do
         l)
             listdb
             exit 0
-        ;;
-        b)
-            export GREP_COLORS='ms=93:sl=:cx=:fn=94:ln=92:bn=92:se=32'
-            export GREP_COLOR='1;35'
-        ;;
-        z)
-            color='none'
-        ;;
-        Z)
-            export GREP_COLORS='ms=41;01;37:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36'
-            export GREP_COLOR='1;37;41;'
         ;;
         c)
             context="$OPTARG"
@@ -147,11 +125,6 @@ while getopts "AbBhvilLzZd:c:x:" opt; do
             done
             IFS=$OIFS
         ;;
-        L)
-            zimlines="s/\([:-]\)\([0-9][0-9]*\)\([:-]\)/ \+\2\3/"
-            #\(\x1b\[.*m\x1b\[K\)
-            vimlines="s/\(\x1b.*\)\([:-]\)\(\x1b\[.*\)\([0-9][0-9]*\)\(\x1b.*\)\([:-]\)/\1 +\3\4\5\6/"
-        ;;
         A)
             excludefiles=""
         ;;
@@ -161,13 +134,14 @@ while getopts "AbBhvilLzZd:c:x:" opt; do
         ;;
     esac
 done
-#Remove arguments from $@
+
+# Remove arguments from $@
 shift $((OPTIND-1))
 
-#Database location can vary based on installation
+# Database location can vary based on installation
 if [ "$sigdb" == '-' ]; then
     database='/dev/stdin'
-elif [ -f "$GRDIR/$sigdb.db"  ]; then
+elif [ -f "$GRDIR/$sigdb.db" ]; then
     database="$GRDIR/$sigdb.db"
 elif [ -f "/usr/share/grepper/$sigdb.db" ]; then
     database="/usr/share/grepper/$sigdb.db"
@@ -182,7 +156,6 @@ elif [ -f "$HOME/grepper/signatures/$sigdb.db" ]; then
 else
     database="$sigdb"
 fi
-
 
 if [ -z "$1" ]; then
     usage
@@ -211,8 +184,7 @@ $BINFILE --color=$color \
          $icase $ignorepattern \
          -n -R -H -C "$context" -E \
          -f "$database" $@ | \
-sed -e"s/$(printf '\r')//g" -e"s/^\(\x1b\[.*m\x1b\[K\)--\(\x1b\[.*\x1b\[K\)$/\1##############################################\2/" -e"s/^--$/$separator/" | \
-sed -e"$vimlines" -e"$zimlines"
+sed -e"s/$(printf '\r')//g" -e"s/^\(\x1b\[.*m\x1b\[K\)--\(\x1b\[.*\x1b\[K\)$/\1##############################################\2/" -e"s/^--$/$separator/"
 SUCCESS=$?
 export GREP_COLORS="$OLD_COLORS"
 exit $SUCCESS
