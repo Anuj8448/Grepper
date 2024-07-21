@@ -14,7 +14,7 @@ not included on the distribution files. This also enables you to get updates
 between releases. To do this run the following command:
 
 ```
-git clone https://github.com/Anuj8448/Grepper && chmod +x /grepper/grepper
+git clone https://github.com/Anuj8448/Grepper && chmod +x grepper/grepper && cd grepper
 ```
 
 You can then add grepper to your path, using the appropriate values for
